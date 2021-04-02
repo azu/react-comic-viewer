@@ -18,7 +18,7 @@ export const Wrapper = styled.div<WrapperProps>`
   min-height: ${({ isExpansion }) => `${isExpansion ? 0 : 440}px`};
   overflow: hidden;
   position: relative;
-  transition: 250ms;
+  transition: 0ms;
 `;
 
 export const Viewer = styled.div`
@@ -44,7 +44,7 @@ export const PagesWrapper = styled.div<PagesWrapperProps>`
     calc(${({ currentPage, pageWidth }) => `${currentPage * pageWidth}px`})
   );
   transition: ${({ switchingFullScreen }) =>
-    `${switchingFullScreen ? 0 : 250}ms`};
+    `${switchingFullScreen ? 0 : 0}ms`};
 `;
 
 export type NavigationButtonProps = {
@@ -64,7 +64,7 @@ export const NavigationButton = styled.a<NavigationButtonProps>`
   right: ${({ navigation }) => (navigation === "next" ? "auto" : "0")};
   padding: 0;
   position: absolute;
-  transition: 250ms;
+  transition: 0ms;
   width: calc(100% / 3);
   :hover {
     opacity: 1;

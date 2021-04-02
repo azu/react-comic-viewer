@@ -30,25 +30,6 @@ const Pages: FC = () => (
         normal: "通常",
       }}
     />
-    <p>
-      hoge
-      <br />
-      hoge
-      <br />
-      hoge
-      <br />
-      hoge
-      <br />
-      hoge
-      <br />
-      hoge
-      <br />
-      hoge
-      <br />
-      hoge
-      <br />
-      hoge
-    </p>
   </Layout>
 );
 

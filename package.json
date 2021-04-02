@@ -1,5 +1,35 @@
 {
+  "name": "@azu/react-comic-viewer",
+  "version": "0.1.5",
+  "private": false,
+  "keywords": [
+    "comic",
+    "manga",
+    "react",
+    "viewer"
+  ],
+  "homepage": "https://react-comic-viewer.kk-web.link",
+  "bugs": {
+    "url": "https://github.com/piro0919/react-comic-viewer/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/piro0919/react-comic-viewer.git"
+  },
+  "license": "MIT",
   "author": "piro <piro.haniwa@gmail.com> (https://kk-web.link/)",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "react-app-rewired build",
+    "build:package": "rm -rf dist && tsc -p tsconfig.gen-dts.json",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "eject": "react-scripts eject",
+    "start": "react-app-rewired start",
+    "test": "react-app-rewired test"
+  },
   "browserslist": {
     "development": [
       "last 1 chrome version",
@@ -12,8 +42,11 @@
       "not op_mini all"
     ]
   },
-  "bugs": {
-    "url": "https://github.com/piro0919/react-comic-viewer/issues"
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "dependencies": {
     "@emotion/react": "11.1.5",
@@ -23,6 +56,7 @@
     "@rooks/use-window-size": "^4.10.0",
     "@use-it/event-listener": "0.1.6",
     "react-full-screen": "0.3.2-0",
+    "react-hotkeys-hook": "^3.3.0",
     "react-icons": "4.2.0",
     "react-no-ssr": "^1.1.0",
     "react-swipeable": "6.1.0",
@@ -47,38 +81,5 @@
     "react-scripts": "4.0.3",
     "typescript": "4.2.3",
     "web-vitals": "0.2.4"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "homepage": "https://react-comic-viewer.kk-web.link",
-  "keywords": [
-    "comic",
-    "manga",
-    "react",
-    "viewer"
-  ],
-  "license": "MIT",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "name": "react-comic-viewer",
-  "private": false,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/piro0919/react-comic-viewer.git"
-  },
-  "scripts": {
-    "build": "react-app-rewired build",
-    "build:package": "rm -rf dist && tsc -p tsconfig.gen-dts.json",
-    "deploy": "gh-pages -d build",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "start": "react-app-rewired start",
-    "test": "react-app-rewired test"
-  },
-  "types": "dist/index.d.ts",
-  "version": "0.1.5"
+  }
 }
