@@ -25,6 +25,7 @@
     "build": "react-app-rewired build",
     "build:package": "rm -rf dist && tsc -p tsconfig.gen-dts.json",
     "predeploy": "npm run build",
+    "prepublishOnly": "npm run build:package",
     "deploy": "gh-pages -d build",
     "eject": "react-scripts eject",
     "start": "react-app-rewired start",
