@@ -187,13 +187,15 @@ const ComicViewer: FC<ComicViewerProps> = ({
         RIGHT: "right",
         LEFT: "left",
         j: "j",
-        k: "k"
+        k: "k",
+        FULLSCREEN: "f"
     };
     const keyHandler = {
         RIGHT: prevPage,
         LEFT: nextPage,
         j: nextPage,
-        k: prevPage
+        k: prevPage,
+        FULLSCREEN: handleClickOnFullScreen
     };
 
 
