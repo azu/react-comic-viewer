@@ -58,7 +58,6 @@
     "@rooks/use-window-size": "^4.10.0",
     "@use-it/event-listener": "0.1.6",
     "react-full-screen": "0.3.2-0",
-    "react-hotkeys": "^2.0.0",
     "react-icons": "4.2.0",
     "react-no-ssr": "^1.1.0",
     "react-swipeable": "6.1.0",

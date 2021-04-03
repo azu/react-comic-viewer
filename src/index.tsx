@@ -20,7 +20,6 @@ import {
 } from "./style";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { BiChevronLeft, BiChevronRight, BiCollapse, BiExpand, BiFullscreen, BiMoveHorizontal, } from "react-icons/bi";
-import { GlobalHotKeys } from "react-hotkeys";
 import useOutsideClickRef from "@rooks/use-outside-click-ref";
 import { CgClose } from "react-icons/cg";
 import { useSwipeable } from "react-swipeable";
