@@ -183,6 +183,10 @@ const ComicViewer: FC<ComicViewerProps> = ({
             (prevCurrentPage) => prevCurrentPage - (isSingleView ? 1 : 2)
         );
     }, [disabledPrevPage, isSingleView]);
+    const enterFullscreen = useCallback(() => {
+        setSwitchingFullScreen(true);
+        enter();
+    }, []);
     const keyMap = {
         RIGHT: "right",
         LEFT: "left",
@@ -195,7 +199,7 @@ const ComicViewer: FC<ComicViewerProps> = ({
         LEFT: nextPage,
         j: nextPage,
         k: prevPage,
-        FULLSCREEN: handleClickOnFullScreen
+        FULLSCREEN: enterFullscreen
     };
 
 
