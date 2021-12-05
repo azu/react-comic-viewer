@@ -190,12 +190,12 @@ const ComicViewer: FC<ComicViewerProps> = ({
         }
     }, [enter, active]);
     useHotkeys("0︎", nextPage);
-    useHotkeys("↩︎", nextPage);
+    useHotkeys("space", nextPage);
     useHotkeys("enter︎", nextPage);
     useHotkeys("left", nextPage);
     useHotkeys("j", nextPage);
     useHotkeys("f", enterFullscreen);
-    useHotkeys('Shift+↩︎', prevPage);
+    useHotkeys('shift+space︎', prevPage);
     useHotkeys("right", prevPage);
     useHotkeys("k", prevPage);
 
