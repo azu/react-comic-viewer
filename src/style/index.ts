@@ -49,6 +49,7 @@ export const PagesWrapper = styled.div<PagesWrapperProps>`
 
 export type NavigationButtonProps = {
   navigation: "next" | "prev";
+  "data-is-stop": boolean;
 };
 
 export const NavigationButton = styled.a<NavigationButtonProps>`
@@ -60,7 +61,7 @@ export const NavigationButton = styled.a<NavigationButtonProps>`
   height: 100%;
   justify-content: ${({ navigation }) =>
     navigation === "next" ? "flex-start" : "flex-end"};
-  opacity: 0.5;
+  opacity: ${(props) => props["data-is-stop"] ? 0.1: 0.5};
   right: ${({ navigation }) => (navigation === "next" ? "auto" : "0")};
   padding: 0;
   position: absolute;

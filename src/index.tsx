@@ -315,24 +315,22 @@ const ComicViewer: FC<ComicViewerProps> = ({
                         >
                             {items}
                         </PagesWrapper>
-                        {disabledNextPage ? null : (
-                            <NavigationButton
-                                navigation="next"
-                                onClick={handleClickOnNextPage}
-                                id={"react-comic-viewer-next"}
-                            >
-                                <BiChevronLeft color="#888" size={64}/>
-                            </NavigationButton>
-                        )}
-                        {disabledPrevPage ? null : (
-                            <NavigationButton
-                                navigation="prev"
-                                onClick={handleClickOnPrevPage}
-                                id={"react-comic-viewer-prev"}
-                            >
-                                <BiChevronRight color="#888" size={64}/>
-                            </NavigationButton>
-                        )}
+                        <NavigationButton
+                            navigation="next"
+                            onClick={handleClickOnNextPage}
+                            id={"react-comic-viewer-next"}
+                            data-is-stop={disabledNextPage}
+                        >
+                            <BiChevronLeft color="#888" size={64}/>
+                        </NavigationButton>
+                        <NavigationButton
+                            navigation="prev"
+                            onClick={handleClickOnPrevPage}
+                            data-is-stop={disabledPrevPage}
+                            id={"react-comic-viewer-prev"}
+                        >
+                            <BiChevronRight color="#888" size={64}/>
+                        </NavigationButton>
                     </Viewer>
                     {active ? (
                         <CloseButton onClick={handleClickOnClose} id={"react-comic-viewer-fullscreen-close"}>
