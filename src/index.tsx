@@ -189,15 +189,18 @@ const ComicViewer: FC<ComicViewerProps> = ({
             enter();
         }
     }, [enter, active]);
-    useHotkeys("0︎", nextPage);
-    useHotkeys("space", nextPage);
-    useHotkeys("enter︎", nextPage);
-    useHotkeys("left", nextPage);
-    useHotkeys("j", nextPage);
-    useHotkeys("f", enterFullscreen);
-    useHotkeys('shift+space︎', prevPage);
-    useHotkeys("right", prevPage);
-    useHotkeys("k", prevPage);
+    const options = {
+        element: document
+    } as any;
+    useHotkeys("0︎", nextPage, options);
+    useHotkeys("space", nextPage, options);
+    useHotkeys("enter︎", nextPage, options);
+    useHotkeys("left", nextPage, options);
+    useHotkeys("j", nextPage, options);
+    useHotkeys("f", enterFullscreen, options);
+    useHotkeys('shift+space︎', prevPage, options);
+    useHotkeys("right", prevPage, options);
+    useHotkeys("k", prevPage, options);
 
     const handleChange = useCallback<NonNullable<ComponentPropsWithoutRef<"input">["onChange"]>>(
         ({ currentTarget: { value } }) => {
