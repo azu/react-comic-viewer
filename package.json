@@ -1,6 +1,6 @@
 {
   "name": "@azu/react-comic-viewer",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "private": false,
   "keywords": [
     "comic",
@@ -21,7 +21,9 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build:app": "react-app-rewired build",
     "build": "rm -rf dist && tsc -p tsconfig.gen-dts.json",
