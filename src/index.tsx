@@ -189,9 +189,7 @@ const ComicViewer: FC<ComicViewerProps> = ({
             enter();
         }
     }, [enter, active]);
-    const options = {
-        element: document
-    } as any;
+    const options = {};
     useHotkeys("0︎", nextPage, options);
     useHotkeys("space", nextPage, options);
     useHotkeys("enter︎", nextPage, options);
@@ -366,7 +364,8 @@ const ComicViewer: FC<ComicViewerProps> = ({
                                             {expansionIcon}
                                             {expansion}
                                         </ControlButton>
-                                        <ControlButton onClick={handleClickOnFullScreen} id={"react-comic-viewer-fullscreen"}>
+                                        <ControlButton onClick={handleClickOnFullScreen}
+                                                       id={"react-comic-viewer-fullscreen"}>
                                             <BiFullscreen color="#fff" size={24}/>
                                             {fullScreen}
                                         </ControlButton>
