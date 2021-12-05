@@ -26,7 +26,7 @@ import { useSwipeable } from "react-swipeable";
 import NoSSR from "react-no-ssr";
 import useWindowSize from "@rooks/use-window-size";
 import useDidUpdate from "@rooks/use-did-update";
-import useHotkeys from "@reecelucas/react-use-hotkeys";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export type ComicViewerProps = {
     initialCurrentPage?: number;
@@ -189,12 +189,14 @@ const ComicViewer: FC<ComicViewerProps> = ({
             enter();
         }
     }, [enter, active]);
-    useHotkeys(" ", nextPage);
-    useHotkeys("ArrowLeft", nextPage);
+    useHotkeys("0︎", nextPage);
+    useHotkeys("↩︎", nextPage);
+    useHotkeys("enter︎", nextPage);
+    useHotkeys("left", nextPage);
     useHotkeys("j", nextPage);
     useHotkeys("f", enterFullscreen);
-    useHotkeys('Shift+" "', prevPage);
-    useHotkeys("ArrowRight", prevPage);
+    useHotkeys('Shift+↩︎', prevPage);
+    useHotkeys("right", prevPage);
     useHotkeys("k", prevPage);
 
     const handleChange = useCallback<NonNullable<ComponentPropsWithoutRef<"input">["onChange"]>>(

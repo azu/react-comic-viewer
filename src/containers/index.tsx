@@ -1,7 +1,7 @@
 import React, { StrictMode } from "react";
 import { render } from "react-dom";
 import Pages from "./pages";
-import "./styles/global.scss";
+import "./styles/global.css";
 
 render(
   <StrictMode>
