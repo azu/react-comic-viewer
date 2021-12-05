@@ -21,6 +21,7 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": ["dist"],
   "scripts": {
     "build:app": "react-app-rewired build",
     "build": "rm -rf dist && tsc -p tsconfig.gen-dts.json",
