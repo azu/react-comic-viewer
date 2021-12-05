@@ -312,6 +312,8 @@ const ComicViewer: FC<ComicViewerProps> = ({
                             currentPage={currentPage}
                             pageWidth={pageWidth}
                             switchingFullScreen={switchingFullScreen}
+                            // @ts-ignore
+                            onDoubleClick={handleClickOnFullScreen}
                         >
                             {items}
                         </PagesWrapper>
@@ -319,6 +321,7 @@ const ComicViewer: FC<ComicViewerProps> = ({
                             <NavigationButton
                                 navigation="next"
                                 onClick={handleClickOnNextPage}
+                                id={"react-comic-viewer-next"}
                             >
                                 <BiChevronLeft color="#888" size={64}/>
                             </NavigationButton>
@@ -327,13 +330,14 @@ const ComicViewer: FC<ComicViewerProps> = ({
                             <NavigationButton
                                 navigation="prev"
                                 onClick={handleClickOnPrevPage}
+                                id={"react-comic-viewer-prev"}
                             >
                                 <BiChevronRight color="#888" size={64}/>
                             </NavigationButton>
                         )}
                     </Viewer>
                     {active ? (
-                        <CloseButton onClick={handleClickOnClose}>
+                        <CloseButton onClick={handleClickOnClose} id={"react-comic-viewer-fullscreen-close"}>
                             <CgClose color="#fff" size={36}/>
                         </CloseButton>
                     ) : (
@@ -362,7 +366,7 @@ const ComicViewer: FC<ComicViewerProps> = ({
                                             {expansionIcon}
                                             {expansion}
                                         </ControlButton>
-                                        <ControlButton onClick={handleClickOnFullScreen}>
+                                        <ControlButton onClick={handleClickOnFullScreen} id={"react-comic-viewer-fullscreen"}>
                                             <BiFullscreen color="#fff" size={24}/>
                                             {fullScreen}
                                         </ControlButton>
