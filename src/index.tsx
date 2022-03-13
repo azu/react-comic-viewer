@@ -27,6 +27,7 @@ import NoSSR from "react-no-ssr";
 import useWindowSize from "@rooks/use-window-size";
 import useDidUpdate from "@rooks/use-did-update";
 import { useHotkeys } from "react-hotkeys-hook";
+import { ClassNames } from "@emotion/react";
 
 export type ComicViewerProps = {
     initialCurrentPage?: number;
@@ -34,7 +35,7 @@ export type ComicViewerProps = {
     initialPreloadCount?: number;
     onChangeCurrentPage?: (currentPage: number) => void;
     onChangeExpansion?: (isExpansion: boolean) => void;
-    pages: Array<string | ReactNode>;
+    pages: Array<string | FC<{ className: string }>>;
     switchingRatio?: number;
     text?: Record<"expansion" | "fullScreen" | "move" | "normal", string>;
 };
@@ -120,8 +121,18 @@ const ComicViewer: FC<ComicViewerProps> = ({
                                     src={page}
                                 />
                             ) : (
-                                page
-                            )}
+                                // eslint-disable-next-line react/jsx-no-undef
+                                <ClassNames>
+                                    {({ css }) => (
+                                        React.createElement(page, {
+                                            className: css`
+                                              height: 100%;
+                                              object-fit: contain;
+                                              width: 100%;
+                                            `
+                                        })
+                                    )}
+                                </ClassNames>)}
                         </Page>
                     )
                 }
