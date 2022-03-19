@@ -24,10 +24,9 @@ import { BiChevronLeft, BiChevronRight, BiCollapse, BiExpand, BiFullscreen, BiMo
 import useOutsideClickRef from "@rooks/use-outside-click-ref";
 import { CgClose } from "react-icons/cg";
 import { useSwipeable } from "react-swipeable";
-import NoSSR from "react-no-ssr";
 import useDidUpdate from "@rooks/use-did-update";
 import { ClassNames } from "@emotion/react";
-import { HotKey, Keys } from "@simprl/react-hot-keys";
+import Hotkeys from 'react-hot-keys';
 import { useWindowSize } from "@react-hook/window-size";
 
 export type ComicViewerProps = {
@@ -278,11 +277,12 @@ const ComicViewer: FC<ComicViewerProps> = ({
             : Math.floor(currentPage / 2) + 1
     }, [currentPage, isSingleView]);
     return <FullScreen handle={handle}>
-        <HotKey selector={Keys.ARROW_LEFT} onKey={prevPage}/>
-        <HotKey selector={Keys.ARROW_RIGHT} onKey={nextPage}/>
-        <HotKey selector={Keys.SPACE} onKey={nextPage}/>
-        <HotKey selector={e => e.key === "j"} onKey={nextPage}/>
-        <HotKey selector={e => e.key === "k"} onKey={prevPage}/>
+        <Hotkeys keyName={"right"} onKeyUp={prevPage}/>
+        <Hotkeys keyName={"left"} onKeyUp={nextPage}/>
+        <Hotkeys keyName={"space"} onKeyUp={nextPage}/>
+        <Hotkeys keyName={"shift+space"} onKeyUp={prevPage}/>
+        <Hotkeys keyName={"j"} onKeyUp={nextPage}/>
+        <Hotkeys keyName={"k"} onKeyUp={prevPage}/>
         <Wrapper
             height={height}
             isExpansion={isExpansion}
@@ -356,8 +356,7 @@ const ComicViewer: FC<ComicViewerProps> = ({
                 </Controller>
             )}
         </Wrapper>
-    </FullScreen>
-        ;
+    </FullScreen>;
 };
 
 function NoSSRComicViewer(props: ComicViewerProps): JSX.Element | null {
