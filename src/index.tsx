@@ -1,4 +1,4 @@
-import React, { ComponentPropsWithoutRef, FC, ReactNode, useCallback, useEffect, useMemo, useState, } from "react";
+import React, { ComponentPropsWithoutRef, FC, useCallback, useEffect, useMemo, useState, } from "react";
 import {
     CloseButton,
     ControlButton,
@@ -8,6 +8,7 @@ import {
     MainController,
     NavigationButton,
     Page,
+    PageCountController,
     PageProps,
     PagesWrapper,
     PagesWrapperProps,
@@ -24,10 +25,10 @@ import useOutsideClickRef from "@rooks/use-outside-click-ref";
 import { CgClose } from "react-icons/cg";
 import { useSwipeable } from "react-swipeable";
 import NoSSR from "react-no-ssr";
-import useWindowSize from "@rooks/use-window-size";
 import useDidUpdate from "@rooks/use-did-update";
-import { useHotkeys } from "react-hotkeys-hook";
 import { ClassNames } from "@emotion/react";
+import { HotKey, Keys } from "@simprl/react-hot-keys";
+import { useWindowSize } from "@react-hook/window-size";
 
 export type ComicViewerProps = {
     initialCurrentPage?: number;
@@ -59,9 +60,7 @@ const ComicViewer: FC<ComicViewerProps> = ({
         () => text,
         [text]
     );
-    const [windowHeight, setWindowHeight] = useState(0);
-    const [windowWidth, setWindowWidth] = useState(0);
-    const { innerHeight, innerWidth } = useWindowSize();
+    const [width, height] = useWindowSize();
     const [isExpansion, setIsExpansion] = useState<WrapperProps["isExpansion"]>(
         initialIsExpansion
     );
@@ -82,11 +81,8 @@ const ComicViewer: FC<ComicViewerProps> = ({
         exit();
     }, [exit]);
     const pageWidth = useMemo<PageProps["width"]>(
-        () =>
-            windowHeight > windowWidth * switchingRatio
-                ? windowWidth
-                : windowWidth / 2,
-        [switchingRatio, windowHeight, windowWidth]
+        () => (height > width * switchingRatio ? width : width / 2),
+        [switchingRatio, height, width]
     );
     const expansion = useMemo<ComponentPropsWithoutRef<"button">["children"]>(
         () => (isExpansion ? normal : expansionText),
@@ -102,8 +98,8 @@ const ComicViewer: FC<ComicViewerProps> = ({
         [isExpansion]
     );
     const isSingleView = useMemo<ImgProps["isSingleView"]>(
-        () => windowHeight > windowWidth * switchingRatio,
-        [switchingRatio, windowHeight, windowWidth]
+        () => height > width * switchingRatio,
+        [switchingRatio, height, width]
     );
     const [currentPage, setCurrentPage] = useState(initialCurrentPage);
     const [preload] = useState(initialPreloadCount);
@@ -115,7 +111,7 @@ const ComicViewer: FC<ComicViewerProps> = ({
                         <Page key={index} width={pageWidth}>
                             {typeof page === "string" ? (
                                 <Img
-                                    alt={page}
+                                    alt={""}
                                     isOdd={!(index % 2)}
                                     isSingleView={isSingleView}
                                     src={page}
@@ -123,15 +119,20 @@ const ComicViewer: FC<ComicViewerProps> = ({
                             ) : (
                                 // eslint-disable-next-line react/jsx-no-undef
                                 <ClassNames>
-                                    {({ css }) => (
-                                        React.createElement(page, {
-                                            className: css`
-                                              height: 100%;
-                                              object-fit: contain;
-                                              width: 100%;
-                                            `
-                                        })
-                                    )}
+                                    {({ css }) => {
+                                        const isOdd = !(index % 2)
+                                        const objectPosition = isSingleView ? "center" : isOdd ? "left" : "right";
+                                        return (
+                                            React.createElement(page, {
+                                                className: css`
+                                                  height: 100%;
+                                                  object-fit: contain;
+                                                  object-position: ${objectPosition};
+                                                  width: 100%;
+                                                `
+                                            })
+                                        )
+                                    }}
                                 </ClassNames>)}
                         </Page>
                     )
@@ -151,26 +152,8 @@ const ComicViewer: FC<ComicViewerProps> = ({
             (!isSingleView && currentPage >= pages.length - 2),
         [currentPage, isSingleView, pages.length]
     );
-    const handleClickOnNextPage = useCallback<NonNullable<ComponentPropsWithoutRef<"a">["onClick"]>>(() => {
-        if (disabledNextPage) {
-            return;
-        }
-        setSwitchingFullScreen(false);
-        setCurrentPage(
-            (prevCurrentPage) => prevCurrentPage + (isSingleView ? 1 : 2)
-        );
-    }, [disabledNextPage, isSingleView]);
-    const disabledPrevPage = useMemo(() => currentPage === 0, [currentPage]);
-    const handleClickOnPrevPage = useCallback<NonNullable<ComponentPropsWithoutRef<"a">["onClick"]>>(() => {
-        if (disabledPrevPage) {
-            return;
-        }
 
-        setSwitchingFullScreen(false);
-        setCurrentPage(
-            (prevCurrentPage) => prevCurrentPage - (isSingleView ? 1 : 2)
-        );
-    }, [disabledPrevPage, isSingleView]);
+    const disabledPrevPage = useMemo(() => currentPage === 0, [currentPage]);
     const [showMove, setShowMove] = useState(false);
     const handleClickOnShowMove = useCallback<NonNullable<ComponentPropsWithoutRef<"button">["onClick"]>>(() => {
         setShowMove(true);
@@ -194,23 +177,18 @@ const ComicViewer: FC<ComicViewerProps> = ({
             (prevCurrentPage) => prevCurrentPage - (isSingleView ? 1 : 2)
         );
     }, [disabledPrevPage, isSingleView]);
+    const handleClickOnNextPage = useCallback<NonNullable<ComponentPropsWithoutRef<"a">["onClick"]>>(() => {
+        nextPage()
+    }, [nextPage]);
+    const handleClickOnPrevPage = useCallback<NonNullable<ComponentPropsWithoutRef<"a">["onClick"]>>(() => {
+        prevPage()
+    }, [prevPage]);
     const enterFullscreen = useCallback(() => {
         if (!active) {
             setSwitchingFullScreen(true);
             enter();
         }
     }, [enter, active]);
-    const options = {};
-    useHotkeys("0︎", nextPage, options);
-    useHotkeys("space", nextPage, options);
-    useHotkeys("enter︎", nextPage, options);
-    useHotkeys("left", nextPage, options);
-    useHotkeys("j", nextPage, options);
-    useHotkeys("f", enterFullscreen, options);
-    useHotkeys('shift+space︎', prevPage, options);
-    useHotkeys("right", prevPage, options);
-    useHotkeys("k", prevPage, options);
-
     const handleChange = useCallback<NonNullable<ComponentPropsWithoutRef<"input">["onChange"]>>(
         ({ currentTarget: { value } }) => {
             setSwitchingFullScreen(false);
@@ -275,22 +253,6 @@ const ComicViewer: FC<ComicViewerProps> = ({
         setCurrentPage((prevCurrentPage) => Math.floor(prevCurrentPage / 2) * 2);
     }, [isSingleView]);
 
-    useEffect(() => {
-        if (typeof innerHeight !== "number") {
-            return;
-        }
-
-        setWindowHeight(innerHeight);
-    }, [innerHeight]);
-
-    useEffect(() => {
-        if (typeof innerWidth !== "number") {
-            return;
-        }
-
-        setWindowWidth(innerWidth);
-    }, [innerWidth]);
-
     useDidUpdate(() => {
         if (!onChangeCurrentPage) {
             return;
@@ -307,11 +269,24 @@ const ComicViewer: FC<ComicViewerProps> = ({
         onChangeExpansion(isExpansion);
     }, [isExpansion, onChangeExpansion]);
 
+    const maxPageCount = useMemo(() => {
+        return isSingleView ? pages.length : Math.ceil(pages.length / 2)
+    }, [isSingleView, pages.length]);
+    const currentPageNumber = useMemo(() => {
+        return isSingleView
+            ? currentPage + 1
+            : Math.floor(currentPage / 2) + 1
+    }, [currentPage, isSingleView]);
     return (
         <NoSSR>
+            <HotKey selector={Keys.ARROW_LEFT} onKey={prevPage}/>
+            <HotKey selector={Keys.ARROW_RIGHT} onKey={nextPage}/>
+            <HotKey selector={Keys.SPACE} onKey={nextPage}/>
+            <HotKey selector={e => e.key === "j"} onKey={nextPage}/>
+            <HotKey selector={e => e.key === "k"} onKey={prevPage}/>
             <FullScreen handle={handle}>
                 <Wrapper
-                    height={windowHeight}
+                    height={height}
                     isExpansion={isExpansion}
                     isFullScreen={active}
                     {...handlers}
@@ -321,8 +296,6 @@ const ComicViewer: FC<ComicViewerProps> = ({
                             currentPage={currentPage}
                             pageWidth={pageWidth}
                             switchingFullScreen={switchingFullScreen}
-                            // @ts-ignore
-                            onDoubleClick={handleClickOnFullScreen}
                         >
                             {items}
                         </PagesWrapper>
@@ -353,17 +326,11 @@ const ComicViewer: FC<ComicViewerProps> = ({
                                 <SubController ref={ref}>
                                     <RangeInput
                                         onChange={handleChange}
-                                        max={
-                                            isSingleView ? pages.length : Math.ceil(pages.length / 2)
-                                        }
+                                        max={maxPageCount}
                                         min={1}
                                         step={1}
                                         type="range"
-                                        value={
-                                            isSingleView
-                                                ? currentPage + 1
-                                                : Math.floor(currentPage / 2) + 1
-                                        }
+                                        value={currentPageNumber}
                                     />
                                 </SubController>
                             ) : (
@@ -379,6 +346,9 @@ const ComicViewer: FC<ComicViewerProps> = ({
                                             {fullScreen}
                                         </ControlButton>
                                     </ScaleController>
+                                    <PageCountController>
+                                        <span>{currentPageNumber}/{maxPageCount}</span>
+                                    </PageCountController>
                                     <ControlButton onClick={handleClickOnShowMove}>
                                         <BiMoveHorizontal color="#fff" size={24}/>
                                         {move}

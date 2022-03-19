@@ -70,12 +70,15 @@ export const NavigationButton = styled.a<NavigationButtonProps>`
   :hover {
     opacity: 1;
   }
+  
   @media (max-width: 980px) {
     opacity: 0;
     :hover {
       opacity: 0;
     }
   }
+  // Tap color
+  -webkit-tap-highlight-color: transparent;
 `;
 
 export type PageProps = {
@@ -96,7 +99,7 @@ export const Img = styled.img<ImgProps>`
   height: 100%;
   object-fit: contain;
   object-position: ${({ isOdd, isSingleView }) =>
-    isSingleView ? "center" : isOdd ? "left" : "right"};
+      isSingleView ? "center" : isOdd ? "left" : "right"};
   width: 100%;
 `;
 
@@ -116,6 +119,15 @@ export const SubController = styled.div`
   height: 100%;
   justify-content: center;
 `;
+
+export const PageCountController = styled.div`
+  font-size: 1em;
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+`;
+
 
 export const MainController = styled.div`
   align-items: center;
