@@ -277,90 +277,91 @@ const ComicViewer: FC<ComicViewerProps> = ({
             ? currentPage + 1
             : Math.floor(currentPage / 2) + 1
     }, [currentPage, isSingleView]);
-    return (
-        <NoSSR>
-            <HotKey selector={Keys.ARROW_LEFT} onKey={prevPage}/>
-            <HotKey selector={Keys.ARROW_RIGHT} onKey={nextPage}/>
-            <HotKey selector={Keys.SPACE} onKey={nextPage}/>
-            <HotKey selector={e => e.key === "j"} onKey={nextPage}/>
-            <HotKey selector={e => e.key === "k"} onKey={prevPage}/>
-            <FullScreen handle={handle}>
-                <Wrapper
-                    height={height}
-                    isExpansion={isExpansion}
-                    isFullScreen={active}
-                    {...handlers}
+    return <FullScreen handle={handle}>
+        <HotKey selector={Keys.ARROW_LEFT} onKey={prevPage}/>
+        <HotKey selector={Keys.ARROW_RIGHT} onKey={nextPage}/>
+        <HotKey selector={Keys.SPACE} onKey={nextPage}/>
+        <HotKey selector={e => e.key === "j"} onKey={nextPage}/>
+        <HotKey selector={e => e.key === "k"} onKey={prevPage}/>
+        <Wrapper
+            height={height}
+            isExpansion={isExpansion}
+            isFullScreen={active}
+            {...handlers}
+        >
+            <Viewer>
+                <PagesWrapper
+                    currentPage={currentPage}
+                    pageWidth={pageWidth}
+                    switchingFullScreen={switchingFullScreen}
                 >
-                    <Viewer>
-                        <PagesWrapper
-                            currentPage={currentPage}
-                            pageWidth={pageWidth}
-                            switchingFullScreen={switchingFullScreen}
-                        >
-                            {items}
-                        </PagesWrapper>
-                        <NavigationButton
-                            navigation="next"
-                            onClick={handleClickOnNextPage}
-                            id={"react-comic-viewer-next"}
-                            data-is-stop={disabledNextPage}
-                        >
-                            <BiChevronLeft color="#888" size={64}/>
-                        </NavigationButton>
-                        <NavigationButton
-                            navigation="prev"
-                            onClick={handleClickOnPrevPage}
-                            data-is-stop={disabledPrevPage}
-                            id={"react-comic-viewer-prev"}
-                        >
-                            <BiChevronRight color="#888" size={64}/>
-                        </NavigationButton>
-                    </Viewer>
-                    {active ? (
-                        <CloseButton onClick={handleClickOnClose} id={"react-comic-viewer-fullscreen-close"}>
-                            <CgClose color="#fff" size={36}/>
-                        </CloseButton>
+                    {items}
+                </PagesWrapper>
+                <NavigationButton
+                    navigation="next"
+                    onClick={handleClickOnNextPage}
+                    id={"react-comic-viewer-next"}
+                    data-is-stop={disabledNextPage}
+                >
+                    <BiChevronLeft color="#888" size={64}/>
+                </NavigationButton>
+                <NavigationButton
+                    navigation="prev"
+                    onClick={handleClickOnPrevPage}
+                    data-is-stop={disabledPrevPage}
+                    id={"react-comic-viewer-prev"}
+                >
+                    <BiChevronRight color="#888" size={64}/>
+                </NavigationButton>
+            </Viewer>
+            {active ? (
+                <CloseButton onClick={handleClickOnClose} id={"react-comic-viewer-fullscreen-close"}>
+                    <CgClose color="#fff" size={36}/>
+                </CloseButton>
+            ) : (
+                <Controller>
+                    {showMove ? (
+                        <SubController ref={ref}>
+                            <RangeInput
+                                onChange={handleChange}
+                                max={maxPageCount}
+                                min={1}
+                                step={1}
+                                type="range"
+                                value={currentPageNumber}
+                            />
+                        </SubController>
                     ) : (
-                        <Controller>
-                            {showMove ? (
-                                <SubController ref={ref}>
-                                    <RangeInput
-                                        onChange={handleChange}
-                                        max={maxPageCount}
-                                        min={1}
-                                        step={1}
-                                        type="range"
-                                        value={currentPageNumber}
-                                    />
-                                </SubController>
-                            ) : (
-                                <MainController>
-                                    <ScaleController>
-                                        <ControlButton onClick={handleClickOnExpansion}>
-                                            {expansionIcon}
-                                            {expansion}
-                                        </ControlButton>
-                                        <ControlButton onClick={handleClickOnFullScreen}
-                                                       id={"react-comic-viewer-fullscreen"}>
-                                            <BiFullscreen color="#fff" size={24}/>
-                                            {fullScreen}
-                                        </ControlButton>
-                                    </ScaleController>
-                                    <PageCountController>
-                                        <span>{currentPageNumber}/{maxPageCount}</span>
-                                    </PageCountController>
-                                    <ControlButton onClick={handleClickOnShowMove}>
-                                        <BiMoveHorizontal color="#fff" size={24}/>
-                                        {move}
-                                    </ControlButton>
-                                </MainController>
-                            )}
-                        </Controller>
+                        <MainController>
+                            <ScaleController>
+                                <ControlButton onClick={handleClickOnExpansion}>
+                                    {expansionIcon}
+                                    {expansion}
+                                </ControlButton>
+                                <ControlButton onClick={handleClickOnFullScreen}
+                                               id={"react-comic-viewer-fullscreen"}>
+                                    <BiFullscreen color="#fff" size={24}/>
+                                    {fullScreen}
+                                </ControlButton>
+                            </ScaleController>
+                            <PageCountController>
+                                <span>{currentPageNumber}/{maxPageCount}</span>
+                            </PageCountController>
+                            <ControlButton onClick={handleClickOnShowMove}>
+                                <BiMoveHorizontal color="#fff" size={24}/>
+                                {move}
+                            </ControlButton>
+                        </MainController>
                     )}
-                </Wrapper>
-            </FullScreen>
-        </NoSSR>
-    );
+                </Controller>
+            )}
+        </Wrapper>
+    </FullScreen>
+        ;
 };
 
-export default ComicViewer;
+function NoSSRComicViewer(props: ComicViewerProps): JSX.Element | null {
+    return typeof window !== "undefined" ? <ComicViewer {...props} /> : null;
+}
+
+export default NoSSRComicViewer;
