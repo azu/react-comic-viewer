@@ -33,7 +33,11 @@ export type ComicViewerProps = {
     initialCurrentPage?: number;
     initialIsExpansion?: boolean;
     initialPreloadCount?: number;
-    onChangeCurrentPage?: (currentPage: number) => void;
+    // These may be failed
+    onTryMovePrevPage?: (prevPage: number) => void;
+    onTryMoveNextPage?: (nextPage: number) => void;
+    // This is fired after moved
+    onChangedCurrentPage?: (currentPage: number) => void;
     onChangeExpansion?: (isExpansion: boolean) => void;
     pages: Array<string | FC<{ className: string }>>;
     switchingRatio?: number;
@@ -44,7 +48,9 @@ const ComicViewer: FC<ComicViewerProps> = ({
                                                initialCurrentPage = 0,
                                                initialIsExpansion = false,
                                                initialPreloadCount = 30,
-                                               onChangeCurrentPage,
+                                               onTryMoveNextPage,
+                                               onTryMovePrevPage,
+                                               onChangedCurrentPage,
                                                onChangeExpansion,
                                                pages,
                                                switchingRatio = 1,
@@ -158,36 +164,32 @@ const ComicViewer: FC<ComicViewerProps> = ({
         setShowMove(true);
     }, []);
     const nextPage = useCallback(() => {
+        const nextPage = currentPage + (isSingleView ? 1 : 2);
+        // always fire
+        onTryMovePrevPage?.(nextPage);
         if (disabledNextPage) {
             return;
         }
         setSwitchingFullScreen(false);
-        setCurrentPage(
-            (prevCurrentPage) => prevCurrentPage + (isSingleView ? 1 : 2)
-        );
-    }, [disabledNextPage, isSingleView]);
+        setCurrentPage(nextPage);
+    }, [currentPage, disabledNextPage, isSingleView, onTryMovePrevPage]);
     const prevPage = useCallback(() => {
+        const prevPage = currentPage - (isSingleView ? 1 : 2);
+        // always fire
+        onTryMoveNextPage?.(prevPage);
         if (disabledPrevPage) {
             return;
         }
 
         setSwitchingFullScreen(false);
-        setCurrentPage(
-            (prevCurrentPage) => prevCurrentPage - (isSingleView ? 1 : 2)
-        );
-    }, [disabledPrevPage, isSingleView]);
+        setCurrentPage(prevPage);
+    }, [currentPage, disabledPrevPage, isSingleView, onTryMoveNextPage]);
     const handleClickOnNextPage = useCallback<NonNullable<ComponentPropsWithoutRef<"a">["onClick"]>>(() => {
         nextPage()
     }, [nextPage]);
     const handleClickOnPrevPage = useCallback<NonNullable<ComponentPropsWithoutRef<"a">["onClick"]>>(() => {
         prevPage()
     }, [prevPage]);
-    const enterFullscreen = useCallback(() => {
-        if (!active) {
-            setSwitchingFullScreen(true);
-            enter();
-        }
-    }, [enter, active]);
     const handleChange = useCallback<NonNullable<ComponentPropsWithoutRef<"input">["onChange"]>>(
         ({ currentTarget: { value } }) => {
             setSwitchingFullScreen(false);
@@ -252,13 +254,12 @@ const ComicViewer: FC<ComicViewerProps> = ({
         setCurrentPage((prevCurrentPage) => Math.floor(prevCurrentPage / 2) * 2);
     }, [isSingleView]);
 
-    useDidUpdate(() => {
-        if (!onChangeCurrentPage) {
+    useEffect(() => {
+        if (!onChangedCurrentPage) {
             return;
         }
-
-        onChangeCurrentPage(currentPage);
-    }, [currentPage, onChangeCurrentPage]);
+        onChangedCurrentPage(currentPage);
+    }, [currentPage, onChangedCurrentPage])
 
     useDidUpdate(() => {
         if (!onChangeExpansion) {

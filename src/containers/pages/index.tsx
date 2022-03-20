@@ -10,7 +10,13 @@ const Pages: FC = () => (
         <ComicViewer
             initialCurrentPage={2}
             initialIsExpansion={false}
-            onChangeCurrentPage={(currentPage) => {
+            onTryMoveNextPage={(nextPage) => {
+                console.log("Try to move" + nextPage);
+            }}
+            onTryMovePrevPage={(prevPage) => {
+                console.log("Try to move" + prevPage);
+            }}
+            onChangedCurrentPage={(currentPage) => {
                 console.log(currentPage);
             }}
             onChangeExpansion={(isExpansion) => {
