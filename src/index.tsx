@@ -166,24 +166,24 @@ const ComicViewer: FC<ComicViewerProps> = ({
     const nextPage = useCallback(() => {
         const nextPage = currentPage + (isSingleView ? 1 : 2);
         // always fire
-        onTryMovePrevPage?.(nextPage);
+        onTryMoveNextPage?.(nextPage);
         if (disabledNextPage) {
             return;
         }
         setSwitchingFullScreen(false);
         setCurrentPage(nextPage);
-    }, [currentPage, disabledNextPage, isSingleView, onTryMovePrevPage]);
+    }, [currentPage, disabledNextPage, isSingleView, onTryMoveNextPage]);
     const prevPage = useCallback(() => {
         const prevPage = currentPage - (isSingleView ? 1 : 2);
         // always fire
-        onTryMoveNextPage?.(prevPage);
+        onTryMovePrevPage?.(prevPage);
         if (disabledPrevPage) {
             return;
         }
 
         setSwitchingFullScreen(false);
         setCurrentPage(prevPage);
-    }, [currentPage, disabledPrevPage, isSingleView, onTryMoveNextPage]);
+    }, [currentPage, disabledPrevPage, isSingleView, onTryMovePrevPage]);
     const handleClickOnNextPage = useCallback<NonNullable<ComponentPropsWithoutRef<"a">["onClick"]>>(() => {
         nextPage()
     }, [nextPage]);
