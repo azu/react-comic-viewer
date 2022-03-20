@@ -1,6 +1,6 @@
 import { ComicViewer } from "index";
 import Layout from "components/Layout";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import Hotkeys from "react-hot-keys";
 
 const Image = (props: { src: string; classname: string }) => {
@@ -8,6 +8,19 @@ const Image = (props: { src: string; classname: string }) => {
 }
 const Pages: FC = () => {
     const [currentPage, setCurrentPage] = useState(0);
+    const [pages, setPages] = useState<(string | FC<{ className: string }>)[]>([])
+    useEffect(() => {
+        // lazy init
+        setPages([
+            ({ className }) => <Image src={"/comics/0.jpg"} classname={className}/>,
+            ({ className }) => <Image src={"/comics/1.jpg"} classname={className}/>,
+            ({ className }) => <Image src={"/comics/2.jpg"} classname={className}/>,
+            "/comics/3.jpg",
+            "/comics/4.jpg",
+            "/comics/5.jpg",
+            "/comics/6.jpg",
+        ])
+    }, [])
     return (
         <Layout>
             {Array.from({ length: 9 }).map((_, index) => {
@@ -34,15 +47,7 @@ const Pages: FC = () => {
                 onChangeExpansion={(isExpansion) => {
                     console.log(isExpansion);
                 }}
-                pages={[
-                    ({ className }) => <Image src={"/comics/0.jpg"} classname={className}/>,
-                    ({ className }) => <Image src={"/comics/1.jpg"} classname={className}/>,
-                    ({ className }) => <Image src={"/comics/2.jpg"} classname={className}/>,
-                    "/comics/3.jpg",
-                    "/comics/4.jpg",
-                    "/comics/5.jpg",
-                    "/comics/6.jpg",
-                ]}
+                pages={pages}
                 switchingRatio={0.75}
                 text={{
                     expansion: "拡大",

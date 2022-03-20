@@ -115,15 +115,15 @@ const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
         [switchingRatio, height, width]
     );
     // 0-index
-    const maxPageIndex = useMemo(() => {
-        return (isSingleView ? pages.length : Math.ceil(pages.length / 2) - 1)
-    }, [isSingleView, pages.length]);
-    // 0-index
     const currentPageIndex = useMemo(() => {
         return isSingleView
             ? currentPage
             : Math.floor(currentPage / 2)
     }, [currentPage, isSingleView]);
+    const maxPageIndex = useMemo(() => {
+        // >= 0
+        return Math.max((isSingleView ? pages.length : Math.ceil(pages.length / 2) - 1), 0)
+    }, [isSingleView, pages.length]);
     // controlled effect
     useEffect(() => {
         if (propsCurrentPage !== undefined && propsCurrentPage !== prevCurrentPage) {
@@ -131,9 +131,8 @@ const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
             const absPage = (
                 isSingleView ? (propsCurrentPage) : (propsCurrentPage) * 2
             );
-            console.log("ABBBBBBC ", absPage);
             if (absPage >= maxPageIndex) {
-                setCurrentPage(maxPageIndex)
+                setCurrentPage(maxPageIndex);// max page index >= 0
             } else if (absPage <= 0) {
                 setCurrentPage(0)
             } else {
