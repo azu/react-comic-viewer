@@ -106,6 +106,7 @@ const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
     const [width, height] = useWindowSize();
     const [isExpansion, setIsExpansion] = useState<WrapperProps["isExpansion"]>(propsIsExpansion ?? false);
 
+    const isPrevExpansion = usePrevious(isExpansion);
     const [currentPage, setCurrentPage] = useState(propsCurrentPage ?? 0);
     const prevCurrentPage = usePrevious(currentPage);
     const [preload, setPreload] = useState(propsPreloadCount ?? 30);
@@ -115,7 +116,7 @@ const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
     );
     // 0-index
     const maxPageIndex = useMemo(() => {
-        return isSingleView ? pages.length - 1 : Math.ceil(pages.length - 1 / 2)
+        return (isSingleView ? pages.length : Math.ceil(pages.length / 2) - 1)
     }, [isSingleView, pages.length]);
     // 0-index
     const currentPageIndex = useMemo(() => {
@@ -125,10 +126,12 @@ const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
     }, [currentPage, isSingleView]);
     // controlled effect
     useEffect(() => {
-        if (propsCurrentPage !== undefined) {
+        if (propsCurrentPage !== undefined && propsCurrentPage !== prevCurrentPage) {
+            // double up bug
             const absPage = (
                 isSingleView ? (propsCurrentPage) : (propsCurrentPage) * 2
             );
+            console.log("ABBBBBBC ", absPage);
             if (absPage >= maxPageIndex) {
                 setCurrentPage(maxPageIndex)
             } else if (absPage <= 0) {
@@ -137,7 +140,7 @@ const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
                 setCurrentPage(absPage)
             }
         }
-    }, [isSingleView, maxPageIndex, propsCurrentPage]);
+    }, [isSingleView, maxPageIndex, prevCurrentPage, propsCurrentPage]);
     useEffect(() => {
         if (typeof propsIsExpansion === "boolean") {
             setIsExpansion(propsIsExpansion)
@@ -323,7 +326,6 @@ const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
         if (isSingleView) {
             return;
         }
-
         setCurrentPage((prevCurrentPage) => Math.floor(prevCurrentPage / 2) * 2);
     }, [isSingleView]);
 
@@ -331,7 +333,6 @@ const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
         if (!onChangedCurrentPage) {
             return;
         }
-        console.log("currentPage", currentPage);
         // if current page is changed, actually
         // ignore onChangedCurrentPage handler changes
         if (prevCurrentPage !== currentPage) {
@@ -344,7 +345,10 @@ const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
             return;
         }
 
-        onChangeExpansion(isExpansion);
+        // ignore onChangeExpansion changes
+        if (isPrevExpansion !== isExpansion) {
+            onChangeExpansion(isExpansion);
+        }
     }, [isExpansion, onChangeExpansion]);
 
     return <FullScreen handle={handle}>
