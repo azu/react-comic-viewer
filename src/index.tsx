@@ -1,4 +1,4 @@
-import React, { ComponentPropsWithoutRef, FC, useCallback, useEffect, useMemo, useState, } from "react";
+import React, { ComponentPropsWithoutRef, FC, useCallback, useEffect, useMemo, useRef, useState, } from "react";
 import {
     CloseButton,
     ControlButton,
@@ -29,10 +29,10 @@ import { ClassNames } from "@emotion/react";
 import Hotkeys from 'react-hot-keys';
 import { useWindowSize } from "@react-hook/window-size";
 
-export type ComicViewerProps = {
-    initialCurrentPage?: number;
-    initialIsExpansion?: boolean;
-    initialPreloadCount?: number;
+/**
+ * Note: Page is 0-index
+ */
+export type CommonComicViewerProps = {
     // These may be failed
     onTryMovePrevPage?: (prevPage: number) => void;
     onTryMoveNextPage?: (nextPage: number) => void;
@@ -42,33 +42,112 @@ export type ComicViewerProps = {
     pages: Array<string | FC<{ className: string }>>;
     switchingRatio?: number;
     text?: Record<"expansion" | "fullScreen" | "move" | "normal", string>;
+}
+export type UnControlledComicViewerProps = CommonComicViewerProps & {
+    /**
+     * 0-index
+     */
+    initialCurrentPage?: number;
+    initialIsExpansion?: boolean;
+    initialPreloadCount?: number;
 };
+export type ControlledComicViewerProps = CommonComicViewerProps & {
+    /**
+     * 0-index
+     */
+    currentPage?: number;
+    isExpansion?: boolean;
+    preloadCount?: number;
+};
+export type ComicViewerProps = ControlledComicViewerProps | UnControlledComicViewerProps;
 
-const ComicViewer: FC<ComicViewerProps> = ({
-                                               initialCurrentPage = 0,
-                                               initialIsExpansion = false,
-                                               initialPreloadCount = 30,
-                                               onTryMoveNextPage,
-                                               onTryMovePrevPage,
-                                               onChangedCurrentPage,
-                                               onChangeExpansion,
-                                               pages,
-                                               switchingRatio = 1,
-                                               text = {
-                                                   expansion: "Expansion",
-                                                   fullScreen: "Full screen",
-                                                   move: "Move",
-                                                   normal: "Normal",
-                                               },
-                                           }) => {
+function usePrevious<T>(value: T) {
+    const ref = useRef<T>();
+    useEffect(() => {
+        ref.current = value;
+    });
+    return ref.current;
+}
+
+const isControlledProps = (props: ComicViewerProps): props is ControlledComicViewerProps => {
+    return "currentPage" in props || "isExpansion" in props || "preloadCount" in props;
+}
+const assertControlledComicViewerProps = (props: ComicViewerProps) => {
+    const uncontrolled =
+        "initialCurrentPage" in props ||
+        "initialIsExpansion" in props ||
+        "initialPreloadCount" in props;
+    if (uncontrolled) {
+        throw new Error("Controlled ComicView can not pass initialize* props. It is for uncontrolled")
+    }
+}
+const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
+    const {
+        onTryMoveNextPage,
+        onTryMovePrevPage,
+        onChangedCurrentPage,
+        onChangeExpansion,
+        pages,
+        switchingRatio = 1,
+        text = {
+            expansion: "Expansion",
+            fullScreen: "Full screen",
+            move: "Move",
+            normal: "Normal",
+        },
+        currentPage: propsCurrentPage,
+        isExpansion: propsIsExpansion,
+        preloadCount: propsPreloadCount
+    } = props;
     const { expansion: expansionText, fullScreen, move, normal } = useMemo(
         () => text,
         [text]
     );
     const [width, height] = useWindowSize();
-    const [isExpansion, setIsExpansion] = useState<WrapperProps["isExpansion"]>(
-        initialIsExpansion
+    const [isExpansion, setIsExpansion] = useState<WrapperProps["isExpansion"]>(propsIsExpansion ?? false);
+
+    const [currentPage, setCurrentPage] = useState(propsCurrentPage ?? 0);
+    const prevCurrentPage = usePrevious(currentPage);
+    const [preload, setPreload] = useState(propsPreloadCount ?? 30);
+    const isSingleView = useMemo<ImgProps["isSingleView"]>(
+        () => height > width * switchingRatio,
+        [switchingRatio, height, width]
     );
+    // 0-index
+    const maxPageIndex = useMemo(() => {
+        return isSingleView ? pages.length - 1 : Math.ceil(pages.length - 1 / 2)
+    }, [isSingleView, pages.length]);
+    // 0-index
+    const currentPageIndex = useMemo(() => {
+        return isSingleView
+            ? currentPage
+            : Math.floor(currentPage / 2)
+    }, [currentPage, isSingleView]);
+    // controlled effect
+    useEffect(() => {
+        if (propsCurrentPage !== undefined) {
+            const absPage = (
+                isSingleView ? (propsCurrentPage) : (propsCurrentPage) * 2
+            );
+            if (absPage >= maxPageIndex) {
+                setCurrentPage(maxPageIndex)
+            } else if (absPage <= 0) {
+                setCurrentPage(0)
+            } else {
+                setCurrentPage(absPage)
+            }
+        }
+    }, [isSingleView, maxPageIndex, propsCurrentPage]);
+    useEffect(() => {
+        if (typeof propsIsExpansion === "boolean") {
+            setIsExpansion(propsIsExpansion)
+        }
+    }, [propsIsExpansion]);
+    useEffect(() => {
+        if (typeof propsPreloadCount === "boolean") {
+            setPreload(propsPreloadCount)
+        }
+    }, [propsPreloadCount]);
     const [switchingFullScreen, setSwitchingFullScreen] = useState<PagesWrapperProps["switchingFullScreen"]>(false);
     const handle = useFullScreenHandle();
     const { active, enter, exit } = useMemo(() => handle, [handle]);
@@ -102,12 +181,6 @@ const ComicViewer: FC<ComicViewerProps> = ({
             ),
         [isExpansion]
     );
-    const isSingleView = useMemo<ImgProps["isSingleView"]>(
-        () => height > width * switchingRatio,
-        [switchingRatio, height, width]
-    );
-    const [currentPage, setCurrentPage] = useState(initialCurrentPage);
-    const [preload] = useState(initialPreloadCount);
     const items = useMemo(
         () =>
             pages.map((page, index) => {
@@ -258,8 +331,13 @@ const ComicViewer: FC<ComicViewerProps> = ({
         if (!onChangedCurrentPage) {
             return;
         }
-        onChangedCurrentPage(currentPage);
-    }, [currentPage, onChangedCurrentPage])
+        console.log("currentPage", currentPage);
+        // if current page is changed, actually
+        // ignore onChangedCurrentPage handler changes
+        if (prevCurrentPage !== currentPage) {
+            onChangedCurrentPage(currentPage);
+        }
+    }, [currentPage, onChangedCurrentPage, prevCurrentPage])
 
     useDidUpdate(() => {
         if (!onChangeExpansion) {
@@ -269,14 +347,6 @@ const ComicViewer: FC<ComicViewerProps> = ({
         onChangeExpansion(isExpansion);
     }, [isExpansion, onChangeExpansion]);
 
-    const maxPageCount = useMemo(() => {
-        return isSingleView ? pages.length : Math.ceil(pages.length / 2)
-    }, [isSingleView, pages.length]);
-    const currentPageNumber = useMemo(() => {
-        return isSingleView
-            ? currentPage + 1
-            : Math.floor(currentPage / 2) + 1
-    }, [currentPage, isSingleView]);
     return <FullScreen handle={handle}>
         <Hotkeys keyName={"right"} onKeyUp={prevPage}/>
         <Hotkeys keyName={"left"} onKeyUp={nextPage}/>
@@ -325,11 +395,11 @@ const ComicViewer: FC<ComicViewerProps> = ({
                         <SubController ref={ref}>
                             <RangeInput
                                 onChange={handleChange}
-                                max={maxPageCount}
-                                min={1}
+                                max={maxPageIndex}
+                                min={0}
                                 step={1}
                                 type="range"
-                                value={currentPageNumber}
+                                value={currentPageIndex}
                             />
                         </SubController>
                     ) : (
@@ -346,7 +416,7 @@ const ComicViewer: FC<ComicViewerProps> = ({
                                 </ControlButton>
                             </ScaleController>
                             <PageCountController>
-                                <span>{currentPageNumber}/{maxPageCount}</span>
+                                <span>{currentPageIndex}/{maxPageIndex}</span>
                             </PageCountController>
                             <ControlButton onClick={handleClickOnShowMove}>
                                 <BiMoveHorizontal color="#fff" size={24}/>
@@ -359,9 +429,28 @@ const ComicViewer: FC<ComicViewerProps> = ({
         </Wrapper>
     </FullScreen>;
 };
+const UnControlledComicViewer: FC<UnControlledComicViewerProps> = (props) => {
+    const { initialIsExpansion, initialCurrentPage, initialPreloadCount, ...commonProps } = props
+    // eslint-disable-next-line -- freeze
+    const isExpansion = useMemo(() => initialIsExpansion, [])
+    // eslint-disable-next-line -- freeze
+    const currentPage = useMemo(() => initialCurrentPage, [])
+    // eslint-disable-next-line -- freeze
+    const preloadCount = useMemo(() => initialPreloadCount, [])
+    return <ControlledComicViewer isExpansion={isExpansion}
+                                  currentPage={currentPage}
+                                  preloadCount={preloadCount}
+                                  {...commonProps}/>;
+};
 
-function NoSSRComicViewer(props: ComicViewerProps): JSX.Element | null {
-    return typeof window !== "undefined" ? <ComicViewer {...props} /> : null;
+export function ComicViewer(props: ComicViewerProps): JSX.Element | null {
+    if (typeof window === "undefined") {
+        return null;
+    }
+    if (isControlledProps(props)) {
+        assertControlledComicViewerProps(props)
+        return <ControlledComicViewer {...props} />;
+    } else {
+        return <UnControlledComicViewer {...props} />
+    }
 }
-
-export default NoSSRComicViewer;

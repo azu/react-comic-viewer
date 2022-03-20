@@ -1,4 +1,4 @@
-import ComicViewer from "index";
+import { ComicViewer } from "index";
 import Layout from "components/Layout";
 import React, { FC } from "react";
 
