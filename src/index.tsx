@@ -122,7 +122,8 @@ const ControlledComicViewer: FC<ControlledComicViewerProps> = (props) => {
     }, [currentPage, isSingleView]);
     const maxPageIndex = useMemo(() => {
         // >= 0
-        return Math.max((isSingleView ? pages.length : Math.ceil(pages.length / 2) - 1), 0)
+        const pageCount = isSingleView ? pages.length - 1 : Math.ceil(pages.length / 2) - 1;
+        return Math.max(pageCount, 0)
     }, [isSingleView, pages.length]);
     // controlled effect
     useEffect(() => {
